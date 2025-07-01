@@ -1,6 +1,17 @@
 pandas
 numpy
 requests
-textblob
-emoji
+websockets
 python-dotenv
+emoji
+textblob
+scikit-learn
+joblib
+
+Quyidagi kutubxonalar loyihaning to'liq funksionalligi uchun kerak bo'lishi mumkin.
+Agar ulardan foydalansangiz, # belgisini olib tashlang va o'rnating.
+python-binance # Binance API bilan ishlash uchun
+ccxt # Umumiy birja APIlari bilan ishlash uchun
+ta # Texnik analiz indikatorlari uchun
+tweepy # Twitter API bilan ishlash uchun
+praw # Reddit API bilan ishlash uchun
