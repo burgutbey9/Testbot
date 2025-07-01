@@ -1,30 +1,48 @@
-SAVDO BOT LOYIHASI — YAKUNIY TUSHUNTIRISH
+📌 To'liq g'oya: Scalping AI Bot
 
-📌 Asosiy maqsad:
-Kripto bozorida scalping bot — AI indikatorlar, sentiment, risk boshqarish, orderflow va backtest bilan.
+Maqsad:
+AI, Order Flow va Sentiment tahlilini birlashtirgan, yuqori chastotali scalping savdo strategiyasini avtomatlashtirish. Botning asosiy maqsadi - qisqa muddatli narx harakatlaridan foyda olish, API limitlariga tushmasdan uzluksiz ishlash va o'z-o'zini optimallashtirish orqali samaradorlikni oshirish.
 
-📌 Texnik qismi:
-- Indikatorlar: RSI, MACD, BB, ATR
-- Orderflow: Whale activity aniqlash, delta
-- Sentiment: Yangiliklar, Twitter, forumlardan AI tahlil
-- API rotation: Bepul API kalitlari tugaganda avtomatik o‘zgaradi
-- Risk boshqarish: Dinamik stop-loss, take-profit, favqulodda stop
-- Backtest: Tarixiy ma’lumotda signalni tekshiradi
-- Log: Savdo loglari, xatolar, backtest CSV
+Talablar:
 
-📌 Ishlash tartibi:
-- Real vaqt narx va hajm oladi
-- Indikatorlarni hisoblaydi
-- Orderflow va sentiment bilan filtrlaydi
-- Signal bo‘lsa, risk manager pozitsiya hajmi va SL/TP ni aniqlaydi
-- Buyurtma joylaydi
-- Har bir savdo log fayllarga tushadi
-- Strategiya o‘zini backtest orqali optimallashtiradi
+Real vaqt ma'lumotlari: Binance WebSocket orqali real vaqtda OHLCV, Order Book ma'lumotlarini olish.
 
-📌 API va Hosting:
-- Binance yoki alternativ birja API
-- AI API (Hugging Face yoki TextBlob)
-- Bir nechta Gmail bilan bepul API rotation
-- Bepul hostingdan boshlab, foyda bo‘lsa pullikka o‘tiladi
+Texnik tahlil: RSI, MACD, BB, ATR kabi asosiy texnik indikatorlarni hisoblash va ulardan foydalanish.
 
-🚀 Loyiha GitHub’da — doimiy monitoring, loglar, strategiyani AI qayta kuchaytiradi!
+Order Flow tahlili: Buyurtma kitobidagi imbalance, tick tezligi va katta buyurtmalarni aniqlash orqali bozor dinamikasini tushunish.
+
+AI Sentiment: Yangiliklar va ijtimoiy tarmoqlardagi sentimentni (Hugging Face, Gemini, OpenAI) tahlil qilish, lokal fallback modelidan foydalanish.
+
+Signal generator: Barcha tahlil natijalarini (indikatorlar, sentiment, order flow) birlashtirib, aniq savdo signallarini (BUY/SELL) yaratish.
+
+API Rotation: Har bir API (Binance, Hugging Face, Gemini, OpenAI, Twitter, Reddit, Bybit) uchun bir nechta kalitlarni boshqarish va limitga tushganda avtomatik ravishda keyingi kalitga o'tish.
+
+Backtesting: Tarixiy OHLCV va tick-level ma'lumotlarida strategiyani sinash, PnL (foyda/zarar) hisoblash va strategiyaning samaradorligini baholash.
+
+Avtomatik optimallashtirish: Backtest natijalari asosida strategiya parametrlarini (masalan, indikator sozlamalari, risk parametrlari) AI orqali optimallashtirish va optimal sozlamalarni saqlash.
+
+Loglash: Barcha savdo operatsiyalari, tizim xatoliklari, API rotatsiyasi va backtest natijalarini batafsil loglash.
+
+Oson joylashtirish: Replit va GitHub orqali oson joylashtirish va yangilash imkoniyati.
+
+Qanday AI Rotation ishlaydi:
+api_manager.py faylida har bir API turi uchun bir nechta kalitlar ro'yxati saqlanadi. Har bir API chaqiruvi uchun api_manager dan kalit so'raladi. Agar biror kalit limitga tushsa yoki xato qaytarsa, api_manager avtomatik ravishda ro'yxatdagi keyingi kalitni taqdim etadi. Bu botning uzluksiz ishlashini ta'minlaydi.
+
+Qaysi ma'lumot real, qaysi tarixiy:
+
+Real vaqt ma'lumotlari: Binance WebSocket orqali olinadigan OHLCV, Order Book, tick-level ma'lumotlar. Yangiliklar va ijtimoiy tarmoqlardagi sentiment real vaqtda APIlar orqali olinadi.
+
+Tarixiy ma'lumotlar: Backtesting uchun ishlatiladigan oldingi OHLCV ma'lumotlari (CSV fayllaridan yuklanadi) va tarixiy tick-level ma'lumotlar. Bu ma'lumotlar strategiyani sinash va optimallashtirish uchun ishlatiladi.
+
+Qaysi xatolik qayerga yoziladi:
+
+trades.log: Har bir muvaffaqiyatli savdo operatsiyasi (ochilish, yopilish, hajmi, narxi, PnL) shu yerga yoziladi.
+
+errors.log: Tizimda yuzaga kelgan barcha xatoliklar (API chaqiruvlari, ma'lumotlarni qayta ishlash, strategiya xatolari va boshqalar) shu yerga yoziladi.
+
+results.csv: Backtest natijalari, jumladan har bir savdo natijasi va umumiy PnL shu yerga yoziladi.
+
+api_rotation.log: API kalitlarining almashishi, limitga tushish holatlari va API chaqiruvlari bilan bog'liq muhim xabarlar shu yerga yoziladi.
+
+Boshqa AI tushunishi uchun aniq so'zlar:
+Loyiha kodi va hujjatlarida savdo terminologiyasi (Order Flow, Imbalance, Tick Speed, Scalping, PnL, SL/TP, OHLCV, RSI, MACD, BB, ATR) aniq va izchil ishlatiladi. AI modullari uchun kiritiladigan matnlar (yangiliklar, tvitlar) tabiiy tilni qayta ishlash (NLP) uchun mos formatda bo'ladi.
