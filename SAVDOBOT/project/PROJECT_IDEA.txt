@@ -1,0 +1,30 @@
+SAVDO BOT LOYIHASI — YAKUNIY TUSHUNTIRISH
+
+📌 Asosiy maqsad:
+Kripto bozorida scalping bot — AI indikatorlar, sentiment, risk boshqarish, orderflow va backtest bilan.
+
+📌 Texnik qismi:
+- Indikatorlar: RSI, MACD, BB, ATR
+- Orderflow: Whale activity aniqlash, delta
+- Sentiment: Yangiliklar, Twitter, forumlardan AI tahlil
+- API rotation: Bepul API kalitlari tugaganda avtomatik o‘zgaradi
+- Risk boshqarish: Dinamik stop-loss, take-profit, favqulodda stop
+- Backtest: Tarixiy ma’lumotda signalni tekshiradi
+- Log: Savdo loglari, xatolar, backtest CSV
+
+📌 Ishlash tartibi:
+- Real vaqt narx va hajm oladi
+- Indikatorlarni hisoblaydi
+- Orderflow va sentiment bilan filtrlaydi
+- Signal bo‘lsa, risk manager pozitsiya hajmi va SL/TP ni aniqlaydi
+- Buyurtma joylaydi
+- Har bir savdo log fayllarga tushadi
+- Strategiya o‘zini backtest orqali optimallashtiradi
+
+📌 API va Hosting:
+- Binance yoki alternativ birja API
+- AI API (Hugging Face yoki TextBlob)
+- Bir nechta Gmail bilan bepul API rotation
+- Bepul hostingdan boshlab, foyda bo‘lsa pullikka o‘tiladi
+
+🚀 Loyiha GitHub’da — doimiy monitoring, loglar, strategiyani AI qayta kuchaytiradi!
