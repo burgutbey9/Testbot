@@ -7,11 +7,10 @@ emoji
 textblob
 scikit-learn
 joblib
+web3 # Alchemy API bilan ishlash uchun
 
 Quyidagi kutubxonalar loyihaning to'liq funksionalligi uchun kerak bo'lishi mumkin.
 Agar ulardan foydalansangiz, # belgisini olib tashlang va o'rnating.
-python-binance # Binance API bilan ishlash uchun
-ccxt # Umumiy birja APIlari bilan ishlash uchun
+ccxt # Umumiy birja APIlari bilan ishlash uchun (tarixiy CEX ma'lumotlari uchun)
 ta # Texnik analiz indikatorlari uchun
-tweepy # Twitter API bilan ishlash uchun
-praw # Reddit API bilan ishlash uchun
+praw # Reddit API bilan ishlash uchun (allaqachon ishlatilmoqda, agar o'rnatilmagan bo'lsa)
