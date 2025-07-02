@@ -1,4 +1,4 @@
-# ai_sentiment.py - Sentiment analysis qismi
+# project/ai_sentiment.py - Sentiment analysis qismi
 
 import requests
 import json
@@ -15,7 +15,7 @@ os.makedirs(LOGS_DIR, exist_ok=True) # logs papkasini yaratish
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s',
                     handlers=[
-                        logging.FileHandler(os.path.join(LOGS_DIR, "api_rotation.log"), encoding='utf-8'),
+                        logging.FileHandler(os.path.join(LOGS_DIR, "api_rotation.log"), encoding='utf-8', mode='a'), # API chaqiruvlari logi uchun
                         logging.StreamHandler()
                     ])
 
@@ -27,8 +27,7 @@ error_logger.addHandler(error_handler)
 error_logger.propagate = False # Asosiy loggerga ikki marta yozmaslik uchun
 
 # API kalitlarini olish (api_manager dan)
-# Relative import ishlatamiz, chunki bu fayl 'project' papkasi ichida bo'ladi
-from project.api_manager import get_huggingface_api_key, get_gemini_api_key, get_openai_api_key
+from project.api_manager import get_huggingface_api_key, get_gemini_api_key
 
 # Hugging Face API konfiguratsiyasi
 HF_API_URL = "https://api-inference.huggingface.co/models/cardiffnlp/twitter-roberta-base-sentiment" # Misol model
@@ -55,7 +54,7 @@ def _load_local_model():
             logging.warning(f"Lokal model topilmadi: {LOCAL_MODEL_PATH}. Offline sentiment TextBlob orqali amalga oshiriladi.")
     return _local_model
 
-def analyze_sentiment_hf(text):
+def analyze_sentiment_hf(text: str) -> str:
     """
     Hugging Face API orqali matnning sentimentini tahlil qiladi.
     Args:
@@ -71,7 +70,7 @@ def analyze_sentiment_hf(text):
     headers = {"Authorization": f"Bearer {api_key}"}
     payload = {"inputs": text}
     try:
-        response = requests.post(HF_API_URL, headers=headers, json=payload)
+        response = requests.post(HF_API_URL, headers=headers, json=payload, timeout=10)
         response.raise_for_status() # HTTP xatolarini tekshirish
         result = response.json()
         # Natijani qayta ishlash
@@ -88,7 +87,7 @@ def analyze_sentiment_hf(text):
         error_logger.error(f"Hugging Face sentiment tahlilida kutilmagan xato: {e}. Gemini fallbackga o'tish.", exc_info=True)
         return analyze_sentiment_gemini(text)
 
-def analyze_sentiment_gemini(text):
+def analyze_sentiment_gemini(text: str) -> str:
     """
     Gemini API orqali matnning sentimentini tahlil qiladi.
     Args:
@@ -124,7 +123,7 @@ def analyze_sentiment_gemini(text):
     apiUrl = f"{GEMINI_API_URL}?key={api_key}"
 
     try:
-        response = requests.post(apiUrl, headers={'Content-Type': 'application/json'}, data=json.dumps(payload))
+        response = requests.post(apiUrl, headers={'Content-Type': 'application/json'}, data=json.dumps(payload), timeout=10)
         response.raise_for_status()
         result = response.json()
 
@@ -147,7 +146,7 @@ def analyze_sentiment_gemini(text):
         return analyze_sentiment_local(text)
 
 
-def analyze_sentiment_local(text):
+def analyze_sentiment_local(text: str) -> str:
     """
     Lokal model yoki TextBlob orqali matnning sentimentini tahlil qiladi.
     Args:
@@ -160,12 +159,10 @@ def analyze_sentiment_local(text):
     if model:
         # Agar model mavjud bo'lsa, u orqali bashorat qilish
         # Bu yerda model.predict() ga mos keladigan xususiyatlarni tayyorlash kerak.
-        # Misol uchun, matnni vektorga aylantirish (TF-IDF, Word2Vec, va hokazo)
         # Hozircha oddiy TextBlob misolini qaytaramiz, chunki modelni o'qitish
         # murakkabroq va bu skriptning doirasidan tashqarida.
         logging.info("Lokal model orqali sentiment tahlili (hozircha TextBlob orqali simulyatsiya qilinmoqda).")
         analysis = TextBlob(text)
-        # TextBlob ning polarity qiymati -1 (negative) dan +1 (positive) gacha.
         if analysis.sentiment.polarity > 0.1: # 0.1 dan yuqori bo'lsa positive
             return "positive"
         elif analysis.sentiment.polarity < -0.1: # -0.1 dan past bo'lsa negative
@@ -184,7 +181,10 @@ def analyze_sentiment_local(text):
             return "neutral"
 
 if __name__ == "__main__":
-    # Misol uchun foydalanish
+    # Test uchun .env faylidan API kalitlarini yuklash
+    from dotenv import load_dotenv
+    load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
+
     print("Hugging Face sentiment (positive):", analyze_sentiment_hf("Bugun ob-havo juda yaxshi!"))
     print("Hugging Face sentiment (negative):", analyze_sentiment_hf("Qo'rqinchli xato yuz berdi."))
     print("Hugging Face sentiment (neutral):", analyze_sentiment_hf("Narx o'zgarmadi."))
