@@ -1,10 +1,8 @@
-# orderflow.py - Order Flow strategiya kodlari
+# project/orderflow.py - Order Flow tahlili (DEX ma'lumotlariga moslashtirilgan)
 
-import requests
-import json
-import time
 import logging
 import os
+import time
 
 # Log konfiguratsiyasi
 LOGS_DIR = os.path.join(os.path.dirname(__file__), "logs")
@@ -14,7 +12,7 @@ os.makedirs(LOGS_DIR, exist_ok=True) # logs papkasini yaratish
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s',
                     handlers=[
-                        logging.FileHandler(os.path.join(LOGS_DIR, "api_rotation.log"), encoding='utf-8'),
+                        logging.FileHandler(os.path.join(LOGS_DIR, "api_rotation.log"), encoding='utf-8', mode='a'), # Order Flow loglari uchun
                         logging.StreamHandler()
                     ])
 
@@ -25,33 +23,14 @@ error_handler.setLevel(logging.ERROR)
 error_logger.addHandler(error_handler)
 error_logger.propagate = False # Asosiy loggerga ikki marta yozmaslik uchun
 
-BINANCE_API_BASE_URL = "https://api.binance.com/api/v3"
+# get_binance_depth_snapshot funksiyasi olib tashlandi, chunki Binance API ishlatilmaydi.
+# DEX uchun Order Flow tahlili on-chain ma'lumotlarga asoslanadi.
 
-def get_binance_depth_snapshot(symbol, limit=100):
-    """
-    Binance spot birjasidan buyurtma kitobi (depth) snapshotini oladi.
-    Args:
-        symbol (str): Savdo juftligi (masalan, "BTCUSDT").
-        limit (int): Qaytariladigan buyurtmalar soni (5, 10, 20, 50, 100, 500, 1000, 5000).
-    Returns:
-        dict: Buyurtma kitobi ma'lumotlari (bids, asks) yoki None agar xato yuz bersa.
-    """
-    endpoint = f"{BINANCE_API_BASE_URL}/depth"
-    params = {"symbol": symbol, "limit": limit}
-    try:
-        response = requests.get(endpoint, params=params)
-        response.raise_for_status() # HTTP xatolarini tekshirish
-        data = response.json()
-        logging.info(f"{symbol} uchun buyurtma kitobi snapshot olindi.")
-        return data
-    except requests.exceptions.RequestException as e:
-        error_logger.error(f"Binance depth snapshot olishda xato: {e}", exc_info=True)
-        return None
-
-def detect_large_orders(depth_data, threshold_percentage=0.005): # Chegarani 0.5% ga o'zgartirdim
+def detect_large_orders(depth_data: dict, threshold_percentage: float = 0.005) -> dict:
     """
     Buyurtma kitobidagi katta buyurtmalarni aniqlaydi.
-    Katta buyurtma deb, umumiy hajmdan belgilangan foizdan yuqori bo'lgan buyurtmalar hisoblanadi.
+    DEX kontekstida bu 'depth_data' mock yoki The Graph kabi manbalardan olingan
+    likvidlik ma'lumotlari bo'lishi mumkin.
     Args:
         depth_data (dict): Buyurtma kitobi ma'lumotlari (bids, asks).
         threshold_percentage (float): Katta buyurtma deb hisoblash uchun umumiy hajmdan foiz (masalan, 0.005 = 0.5%).
@@ -59,7 +38,7 @@ def detect_large_orders(depth_data, threshold_percentage=0.005): # Chegarani 0.5
         dict: Katta sotib olish (large_bids) va sotish (large_asks) buyurtmalari.
     """
     if not depth_data or "bids" not in depth_data or "asks" not in depth_data:
-        logging.warning("detect_large_orders: Buyurtma kitobi ma'lumotlari mavjud emas.")
+        logging.warning("detect_large_orders: Buyurtma kitobi ma'lumotlari mavjud emas yoki noto'g'ri formatda.")
         return {"large_bids": [], "large_asks": []}
 
     all_bids_volume = sum([float(b[1]) for b in depth_data["bids"]])
@@ -84,11 +63,12 @@ _last_tick_time = time.time()
 _tick_count = 0
 _tick_interval_seconds = 1 # Tick tezligini hisoblash intervali (sekundda)
 
-def calculate_tick_speed(new_tick_data):
+def calculate_tick_speed(new_tick_data: dict) -> float:
     """
     Tick tezligini hisoblaydi (ma'lum vaqt oralig'idagi ticklar soni).
+    DEX kontekstida bu tranzaksiya tezligi yoki blok tezligi bo'lishi mumkin.
     Args:
-        new_tick_data (dict): Yangi kelgan tick ma'lumotlari (misol uchun WebSocket xabari).
+        new_tick_data (dict): Yangi kelgan tick ma'lumotlari (misol uchun WebSocket xabari yoki on-chain tranzaksiya).
     Returns:
         float: Tick tezligi (sekundiga ticklar).
     """
@@ -105,10 +85,11 @@ def calculate_tick_speed(new_tick_data):
         return tick_speed
     return 0.0 # Agar interval tugamagan bo'lsa, 0 qaytarish
 
-def apply_imbalance_filter(depth_data, imbalance_threshold=0.6):
+def apply_imbalance_filter(depth_data: dict, imbalance_threshold: float = 0.05) -> float: # Chegarani 0.05 ga o'zgartirdim
     """
     Buyurtma kitobidagi imbalance (nomutanosiblik)ni hisoblaydi va filtrlaydi.
     Imbalance = (Bids Volume - Asks Volume) / (Bids Volume + Asks Volume)
+    DEX kontekstida bu on-chain likvidlik yoki savdo hajmi nomutanosibligi bo'lishi mumkin.
     Args:
         depth_data (dict): Buyurtma kitobi ma'lumotlari (bids, asks).
         imbalance_threshold (float): Imbalance filtri chegarasi (0 dan 1 gacha, absolyut qiymat).
@@ -116,7 +97,7 @@ def apply_imbalance_filter(depth_data, imbalance_threshold=0.6):
         float: Hisoblangan imbalance qiymati.
     """
     if not depth_data or "bids" not in depth_data or "asks" not in depth_data:
-        logging.warning("apply_imbalance_filter: Buyurtma kitobi ma'lumotlari mavjud emas.")
+        logging.warning("apply_imbalance_filter: Buyurtma kitobi ma'lumotlari mavjud emas yoki noto'g'ri formatda.")
         return 0.0
 
     bids_volume = sum([float(b[1]) for b in depth_data["bids"]])
@@ -135,22 +116,24 @@ def apply_imbalance_filter(depth_data, imbalance_threshold=0.6):
     return imbalance
 
 if __name__ == "__main__":
-    # Misol uchun foydalanish
-    symbol = "BTCUSDT"
-    print(f"{symbol} uchun buyurtma kitobi snapshot olinmoqda...")
-    depth = get_binance_depth_snapshot(symbol)
-    if depth:
-        print("Snapshot muvaffaqiyatli olindi.")
-        large_orders = detect_large_orders(depth)
-        print(f"Katta sotib olish buyurtmalari: {large_orders['large_bids']}")
-        print(f"Katta sotish buyurtmalari: {large_orders['large_asks']}")
-        imbalance = apply_imbalance_filter(depth)
-        print(f"Imbalance: {imbalance:.2f}")
+    # Misol uchun foydalanish (DEX ga moslashtirilgan mock data)
+    print("Order Flow tahlili misoli (DEX ma'lumotlari bilan):")
+    mock_depth = {
+        "bids": [["2990.0", "100"], ["2980.0", "50"]],
+        "asks": [["3010.0", "120"], ["3020.0", "60"]]
+    }
+    
+    large_orders = detect_large_orders(mock_depth)
+    print(f"Katta sotib olish buyurtmalari: {large_orders['large_bids']}")
+    print(f"Katta sotish buyurtmalari: {large_orders['large_asks']}")
+    
+    imbalance = apply_imbalance_filter(mock_depth)
+    print(f"Imbalance: {imbalance:.2f}")
 
     print("\nTick speedni sinash...")
     # Tick speedni sinash uchun
     for i in range(20):
-        time.sleep(0.05) # Har 50ms da bir tick
-        speed = calculate_tick_speed({"event_type": "trade", "data": i}) # Har qanday yangi voqea tick hisoblanadi
+        time.sleep(0.05) # Har 50ms da bir tick (simulyatsiya)
+        speed = calculate_tick_speed({"event_type": "transaction", "data": f"tx_{i}"}) # Har qanday yangi voqea tick hisoblanadi
         if speed > 0: # Faqat hisoblangan tezlikni ko'rsatish
             print(f"Tick Speed: {speed:.2f} ticks/sec")
