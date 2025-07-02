@@ -31,7 +31,7 @@ error_logger.propagate = False # Asosiy loggerga ikki marta yozmaslik uchun
 OPTIMIZED_CONFIG_PATH = os.path.join(os.path.dirname(__file__), "optimized_config.json")
 LOCAL_MODEL_PATH = os.path.join(os.path.dirname(__file__), "local_sentiment_model.pkl")
 
-def optimize_strategy(results_csv_path):
+def optimize_strategy(results_csv_path: str):
     """
     'results.csv' fayli asosida savdo strategiyasini optimallashtiradi.
     Args:
@@ -65,11 +65,7 @@ def optimize_strategy(results_csv_path):
 
             # Faqat savdo signallari mavjud bo'lgan qatorlarni tanlash
             # Faqat 'BUY' va 'SELL' savdolari bo'yicha natijalarni ko'rib chiqamiz
-            X = df[['is_buy', 'is_sell']].copy()
-            y = df['actual_outcome'].copy()
-
-            # NaN qiymatlarni olib tashlash (agar mavjud bo'lsa)
-            combined_df = pd.concat([X, y], axis=1).dropna()
+            combined_df = pd.concat([df[['is_buy', 'is_sell']], df['actual_outcome']], axis=1).dropna()
             X = combined_df[['is_buy', 'is_sell']]
             y = combined_df['actual_outcome']
 
