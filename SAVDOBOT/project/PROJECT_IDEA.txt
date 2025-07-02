@@ -5,17 +5,17 @@ AI, Order Flow va Sentiment tahlilini birlashtirgan, yuqori chastotali scalping 
 
 Talablar:
 
-Real vaqt ma'lumotlari: Binance WebSocket orqali real vaqtda OHLCV, Order Book ma'lumotlarini olish.
+Real vaqt ma'lumotlari: 1inch API va The Graph orqali real vaqtda DEX narxlari, likvidlik va blokcheyn ma'lumotlarini (Alchemy orqali gaz narxi, tranzaksiyalar) olish.
 
-Texnik tahlil: RSI, MACD, BB, ATR kabi asosiy texnik indikatorlarni hisoblash va ulardan foydalanish.
+Texnik tahlil: OHLCV ma'lumotlari asosida RSI, MACD, BB, ATR kabi asosiy texnik indikatorlarni hisoblash va ulardan foydalanish (DEX ma'lumotlariga moslashtirilgan).
 
-Order Flow tahlili: Buyurtma kitobidagi imbalance, tick tezligi va katta buyurtmalarni aniqlash orqali bozor dinamikasini tushunish.
+Order Flow tahlili: DEX kontekstida buyurtma kitobidagi (agar mavjud bo'lsa) yoki on-chain ma'lumotlardagi (katta tranzaksiyalar, likvidlik o'zgarishlari) imbalance, tick tezligi va katta buyurtmalarni aniqlash orqali bozor dinamikasini tushunish.
 
-AI Sentiment: Yangiliklar va ijtimoiy tarmoqlardagi sentimentni (Hugging Face, Gemini, OpenAI) tahlil qilish, lokal fallback modelidan foydalanish.
+AI Sentiment: Yangiliklar (NewsAPI.org) va ijtimoiy tarmoqlardagi (Reddit) sentimentni (Hugging Face, Gemini) tahlil qilish, lokal fallback modelidan foydalanish.
 
 Signal generator: Barcha tahlil natijalarini (indikatorlar, sentiment, order flow) birlashtirib, aniq savdo signallarini (BUY/SELL) yaratish.
 
-API Rotation: Har bir API (Binance, Hugging Face, Gemini, OpenAI, Twitter, Reddit, Bybit) uchun bir nechta kalitlarni boshqarish va limitga tushganda avtomatik ravishda keyingi kalitga o'tish.
+API Rotation: Har bir API (1inch, NewsAPI, Alchemy, Hugging Face, Gemini, Reddit) uchun bir nechta kalitlarni boshqarish va limitga tushganda avtomatik ravishda keyingi kalitga o'tish.
 
 Backtesting: Tarixiy OHLCV va tick-level ma'lumotlarida strategiyani sinash, PnL (foyda/zarar) hisoblash va strategiyaning samaradorligini baholash.
 
@@ -25,14 +25,14 @@ Loglash: Barcha savdo operatsiyalari, tizim xatoliklari, API rotatsiyasi va back
 
 Oson joylashtirish: Replit va GitHub orqali oson joylashtirish va yangilash imkoniyati.
 
-Qanday AI Rotation ishlaydi:
+Qanday API Rotation ishlaydi:
 api_manager.py faylida har bir API turi uchun bir nechta kalitlar ro'yxati saqlanadi. Har bir API chaqiruvi uchun api_manager dan kalit so'raladi. Agar biror kalit limitga tushsa yoki xato qaytarsa, api_manager avtomatik ravishda ro'yxatdagi keyingi kalitni taqdim etadi. Bu botning uzluksiz ishlashini ta'minlaydi.
 
 Qaysi ma'lumot real, qaysi tarixiy:
 
-Real vaqt ma'lumotlari: Binance WebSocket orqali olinadigan OHLCV, Order Book, tick-level ma'lumotlar. Yangiliklar va ijtimoiy tarmoqlardagi sentiment real vaqtda APIlar orqali olinadi.
+Real vaqt ma'lumotlari: 1inch API va The Graph orqali olinadigan narxlar, Alchemy orqali gaz narxi va tranzaksiya ma'lumotlari. NewsAPI.org va Reddit orqali yangiliklar va ijtimoiy tarmoqlardagi sentiment real vaqtda APIlar orqali olinadi.
 
-Tarixiy ma'lumotlar: Backtesting uchun ishlatiladigan oldingi OHLCV ma'lumotlari (CSV fayllaridan yuklanadi) va tarixiy tick-level ma'lumotlar. Bu ma'lumotlar strategiyani sinash va optimallashtirish uchun ishlatiladi.
+Tarixiy ma'lumotlar: Backtesting uchun ishlatiladigan oldingi OHLCV ma'lumotlari (CSV fayllaridan yuklanadi) va tarixiy tick-level ma'lumotlar. Bu ma'lumotlar strategiyani sinash va optimallashtirish uchun ishlatiladi. CCXT kutubxonasi CEX ma'lumotlari uchun ishlatilishi mumkin.
 
 Qaysi xatolik qayerga yoziladi:
 
@@ -45,4 +45,4 @@ results.csv: Backtest natijalari, jumladan har bir savdo natijasi va umumiy PnL 
 api_rotation.log: API kalitlarining almashishi, limitga tushish holatlari va API chaqiruvlari bilan bog'liq muhim xabarlar shu yerga yoziladi.
 
 Boshqa AI tushunishi uchun aniq so'zlar:
-Loyiha kodi va hujjatlarida savdo terminologiyasi (Order Flow, Imbalance, Tick Speed, Scalping, PnL, SL/TP, OHLCV, RSI, MACD, BB, ATR) aniq va izchil ishlatiladi. AI modullari uchun kiritiladigan matnlar (yangiliklar, tvitlar) tabiiy tilni qayta ishlash (NLP) uchun mos formatda bo'ladi.
+Loyiha kodi va hujjatlarida savdo terminologiyasi (Order Flow, Imbalance, Tick Speed, Scalping, PnL, SL/TP, OHLCV, RSI, MACD, BB, ATR, DEX, On-chain data, Gas price) aniq va izchil ishlatiladi. AI modullari uchun kiritiladigan matnlar (yangiliklar, tvitlar) tabiiy tilni qayta ishlash (NLP) uchun mos formatda bo'ladi.
