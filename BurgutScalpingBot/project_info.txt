@@ -1,67 +1,28 @@
-# 📂 AI Scalping Bot
+PCSHASH Scalping Bot
 
-## 1️⃣ Loyihaning umumiy maqsadi
+💡 Asosiy vazifa:
+- AI Order Flow va AI Sentiment bilan avto scalping savdo qilish.
+- Hech qanday signal yuborilmaydi — bot o‘zi savdo qiladi.
+- Har hafta backtest qiladi, yangi strategiya sinaydi, eski strategiyani saqlaydi.
+- Yangi strategiya agar yomon natija ko‘rsatsa, avtomatik orqaga qaytadi.
+- Telegramga faqat:
+   ✔ Balans holati
+   ✔ Bot ish holati (ishlayapti / to‘xtagan)
+   ✔ Har soatda status
+   ✔ Xatolik bo‘lsa error log
 
-Bu bot kriptovalyuta bozorida **AI yordamida scalping** qiladi.
-Bot **avtomatik savdo qiladi**, signal yubormaydi — buyurtmalarni o‘zi ochadi/yopadi.
-Botning maqsadi — yuqori chastotali savdo orqali kichik foyda olish.
+📦 API:
+- 1inch: eng yaxshi narxlarni olish.
+- Alchemy: real vaqtda blockchain ma’lumotlar.
+- CCXT: CEX data, fallback.
+- The Graph: Uniswap V3 fallback.
+- NewsAPI, Reddit: sentiment uchun.
+- HuggingFace va Gemini: AI sentiment modeli.
 
----
+📂 Papkalar:
+- modules/: barcha modullar (ai_sentiment.py GPT kodlarisiz!)
+- logs/: bot.log
+- data/: strategiyalar va backtest natijalari.
+- tests/: unit testlar.
 
-## 2️⃣ Ishlash printsipi
-
-- AI yangi strategiya yaratadi va uni **backtest** qiladi.
-- Agar yangi strategiya natijasi yaxshi bo‘lsa, uni ishga tushiradi.
-- Agar yomon bo‘lsa, eski strategiyani tiklaydi yoki yangisini yaxshilaydi.
-- Har hafta yangilangan strategiya va backtest natijasini adminga yuboradi.
-
----
-
-## 3️⃣ Eski strategiyani saqlash
-
-- Har bir eski strategiya `strategy/old_strategies/` papkasida JSON sifatida saqlanadi.
-- Faol strategiya — `strategy/current_strategy.json` da bo‘ladi.
-
----
-
-## 4️⃣ Telegram bildirishnomalar
-
-- **Signal yubormaydi!**
-- Faqat **balans**, bot holati (ishlayapti/to‘xtadi) va agar xatolik bo‘lsa — adminga yuboradi.
-- Har soatda holatni tekshiradi va yuboradi.
-
----
-
-## 5️⃣ Savdo xavfsizligi
-
-- Har bir buyurtma **stop-loss** va **take-profit** bilan himoyalangan.
-- AI risk miqdorini hisoblaydi.
-- Bot faqat belgilangan API kaliti orqali buyurtma beradi.
-
----
-
-## 6️⃣ Konfiguratsiya
-
-`.env.example` faylida barcha kerakli sozlamalar ko‘rsatilgan:
-- API kalitlari
-- Telegram bot tokeni
-- Chat ID
-- AI sozlamalari
-- Risk parametrlari
-
----
-
-## 7️⃣ Loglar
-
-- Har bir ish jarayoni `logs/bot_activity.log` da.
-- Xatolar `logs/error.log` da.
-- Backtest natijalari `logs/backtest.log` da.
-
----
-
-## 8️⃣ Ishga tushirish
-
-1. `.env` faylini `.env.example` asosida to‘ldiring.
-2. `requirements.txt` dagi kutubxonalarni o‘rnating:
-   ```bash
-   pip install -r requirements.txt
+📌 Barcha API kalitlar .env faylda.
