@@ -1,2 +1,6 @@
+from modules.orderflow import run_orderflow
+import asyncio
+
 def test_orderflow():
-    assert True  # Oddiy test. Keyin to'ldiriladi.
+    asyncio.run(run_orderflow())
+    assert True  # Order Flow modul ishladi deb hisoblanadi.
