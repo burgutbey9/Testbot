@@ -1,2 +1,6 @@
 aiohttp
+requests
+ccxt
+praw
+transformers
 python-dotenv
