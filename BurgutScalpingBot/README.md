@@ -7,6 +7,12 @@ AI yordamida **avtomatik scalping** savdo boti. Buyurtmalarni o‘zi ochadi/yopa
 - AI yangi strategiya yaratadi → backtest qiladi → natija yaxshi bo‘lsa ishga tushadi.
 - Eski strategiyalar saqlanadi.
 - Haftada bir tahlil yuboradi.
+  
+## Qisqacha
+AI asosida avto scalping bot — Order Flow, Sentiment, Backtest, Reinforcement Learning.
+
+## Telegram
+Bot faqat ish holati va balans statusini yuboradi.
 
 ## Fayllar va papkalar
 - `project_info.txt` — to‘liq tushuntirish
