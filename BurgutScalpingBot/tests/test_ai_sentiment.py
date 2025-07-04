@@ -1,2 +1,5 @@
+from modules.ai_sentiment import analyze_sentiment
+
 def test_ai_sentiment():
-    assert True  # Oddiy test. Keyin to'ldiriladi.
+    result = analyze_sentiment("Bitcoin will pump!")
+    assert result in ["positive", "negative", "neutral"]
