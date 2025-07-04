@@ -1,14 +1,25 @@
-# BurgutScalpingBot
+# 📂 AI Scalping Bot
 
-🚀 AI asosidagi avtomatik scalping bot.
+## Maqsad
+AI yordamida **avtomatik scalping** savdo boti. Buyurtmalarni o‘zi ochadi/yopadi, signal yubormaydi.
 
-## Xususiyatlar:
-- DEX order flow + sentiment AI
-- API rotation
-- Backtesting va strategiya yangilash
-- Telegram orqali monitoring
+## Ishlash printsipi
+- AI yangi strategiya yaratadi → backtest qiladi → natija yaxshi bo‘lsa ishga tushadi.
+- Eski strategiyalar saqlanadi.
+- Haftada bir tahlil yuboradi.
 
-## Ishga tushirish:
-1. `pip install -r requirements.txt`
-2. `.env` ni sozlang
-3. `python main.py`
+## Fayllar va papkalar
+- `project_info.txt` — to‘liq tushuntirish
+- `requirements.txt` — kutubxonalar
+- `.env.example` — sozlash
+- `main.py` — ishga tushirish kodi
+- `modules/` — modullar
+- `strategy/` — strategiyalar
+- `logs/` — loglar
+
+## Ishga tushirish
+1. `.env` ni sozlash  
+2. Kutubxonalarni o‘rnatish: `pip install -r requirements.txt`  
+3. `main.py` ni ishga tushirish
+
+🚀 Omad!
