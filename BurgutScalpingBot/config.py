@@ -1,0 +1,18 @@
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+ONEINCH_API_KEY = os.getenv("ONEINCH_API_KEY")
+ALCHEMY_API_KEY = os.getenv("ALCHEMY_API_KEY")
+NEWS_API_KEY = os.getenv("NEWS_API_KEY")
+HF_API_KEY_1 = os.getenv("HF_API_KEY_1")
+GEMINI_API_KEY_1 = os.getenv("GEMINI_API_KEY_1")
+
+REDDIT_CLIENT_ID = os.getenv("REDDIT_CLIENT_ID")
+REDDIT_CLIENT_SECRET = os.getenv("REDDIT_CLIENT_SECRET")
+REDDIT_USERNAME = os.getenv("REDDIT_USERNAME")
+REDDIT_PASSWORD = os.getenv("REDDIT_PASSWORD")
+
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
