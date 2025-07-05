@@ -387,4 +387,279 @@ class AdvancedBacktester:
         return BacktestResult(
             total_return=total_return,
             sharpe_ratio=sharpe_ratio,
-            max_drawdown=
+            max_drawdown=max_drawdown,
+            win_rate=win_rate,
+            profit_factor=profit_factor,
+            total_trades=len(self.executed_trades),
+            avg_trade_duration=avg_trade_duration,
+            volatility=volatility,
+            calmar_ratio=calmar_ratio,
+            sortino_ratio=sortino_ratio
+        )
+        
+    def get_detailed_analysis(self) -> Dict:
+        """Batafsil tahlil"""
+        if not self.executed_trades:
+            return {'message': 'Hech qanday trade execute qilinmagan'}
+            
+        analysis = {
+            'execution_quality': self._analyze_execution_quality(),
+            'risk_metrics': self._analyze_risk_metrics(),
+            'performance_attribution': self._analyze_performance_attribution(),
+            'trade_analysis': self._analyze_trades(),
+            'market_impact_analysis': self._analyze_market_impact()
+        }
+        
+        return analysis
+        
+    def _analyze_execution_quality(self) -> Dict:
+        """Execution quality tahlili"""
+        slippages = [trade.slippage for trade in self.executed_trades]
+        latencies = [trade.latency_ms for trade in self.executed_trades]
+        market_impacts = [trade.market_impact for trade in self.executed_trades]
+        
+        return {
+            'avg_slippage': np.mean(slippages),
+            'max_slippage': np.max(slippages),
+            'avg_latency_ms': np.mean(latencies),
+            'max_latency_ms': np.max(latencies),
+            'avg_market_impact': np.mean(market_impacts),
+            'execution_cost_bps': np.mean(slippages) * 10000,  # basis points
+            'latency_distribution': {
+                'p50': np.percentile(latencies, 50),
+                'p95': np.percentile(latencies, 95),
+                'p99': np.percentile(latencies, 99)
+            }
+        }
+        
+    def _analyze_risk_metrics(self) -> Dict:
+        """Risk metrics tahlili"""
+        pnls = [trade.pnl for trade in self.executed_trades]
+        returns = pd.Series(pnls)
+        
+        # VaR calculation
+        var_95 = np.percentile(returns, 5)
+        var_99 = np.percentile(returns, 1)
+        
+        # CVaR calculation
+        cvar_95 = returns[returns <= var_95].mean()
+        cvar_99 = returns[returns <= var_99].mean()
+        
+        return {
+            'value_at_risk_95': var_95,
+            'value_at_risk_99': var_99,
+            'conditional_var_95': cvar_95,
+            'conditional_var_99': cvar_99,
+            'skewness': returns.skew(),
+            'kurtosis': returns.kurtosis(),
+            'tail_ratio': abs(returns.quantile(0.05)) / returns.quantile(0.95)
+        }
+        
+    def _analyze_performance_attribution(self) -> Dict:
+        """Performance attribution tahlili"""
+        total_pnl = sum(trade.pnl for trade in self.executed_trades)
+        total_fees = sum(trade.fees for trade in self.executed_trades)
+        
+        # Symbol breakdown
+        symbol_pnl = {}
+        for trade in self.executed_trades:
+            symbol = trade.original_trade.symbol
+            if symbol not in symbol_pnl:
+                symbol_pnl[symbol] = 0
+            symbol_pnl[symbol] += trade.pnl
+            
+        # Time-based analysis
+        hourly_pnl = {}
+        for trade in self.executed_trades:
+            hour = trade.execution_time.hour
+            if hour not in hourly_pnl:
+                hourly_pnl[hour] = 0
+            hourly_pnl[hour] += trade.pnl
+            
+        return {
+            'total_pnl': total_pnl,
+            'total_fees': total_fees,
+            'net_pnl': total_pnl - total_fees,
+            'symbol_breakdown': symbol_pnl,
+            'hourly_performance': hourly_pnl,
+            'best_hour': max(hourly_pnl, key=hourly_pnl.get) if hourly_pnl else None,
+            'worst_hour': min(hourly_pnl, key=hourly_pnl.get) if hourly_pnl else None
+        }
+        
+    def _analyze_trades(self) -> Dict:
+        """Trade analysis"""
+        winning_trades = [t for t in self.executed_trades if t.pnl > 0]
+        losing_trades = [t for t in self.executed_trades if t.pnl < 0]
+        
+        avg_win = np.mean([t.pnl for t in winning_trades]) if winning_trades else 0
+        avg_loss = np.mean([t.pnl for t in losing_trades]) if losing_trades else 0
+        
+        return {
+            'total_trades': len(self.executed_trades),
+            'winning_trades': len(winning_trades),
+            'losing_trades': len(losing_trades),
+            'win_rate': len(winning_trades) / len(self.executed_trades) if self.executed_trades else 0,
+            'avg_win': avg_win,
+            'avg_loss': avg_loss,
+            'win_loss_ratio': abs(avg_win / avg_loss) if avg_loss != 0 else float('inf'),
+            'largest_win': max([t.pnl for t in winning_trades]) if winning_trades else 0,
+            'largest_loss': min([t.pnl for t in losing_trades]) if losing_trades else 0
+        }
+        
+    def _analyze_market_impact(self) -> Dict:
+        """Market impact tahlili"""
+        buy_trades = [t for t in self.executed_trades if t.original_trade.side == OrderSide.BUY]
+        sell_trades = [t for t in self.executed_trades if t.original_trade.side == OrderSide.SELL]
+        
+        buy_impact = np.mean([t.market_impact for t in buy_trades]) if buy_trades else 0
+        sell_impact = np.mean([t.market_impact for t in sell_trades]) if sell_trades else 0
+        
+        return {
+            'avg_buy_impact': buy_impact,
+            'avg_sell_impact': sell_impact,
+            'total_market_impact_cost': sum(t.market_impact * t.executed_size * t.executed_price 
+                                          for t in self.executed_trades),
+            'impact_vs_size_correlation': self._calculate_impact_size_correlation()
+        }
+        
+    def _calculate_impact_size_correlation(self) -> float:
+        """Market impact va trade size correlation"""
+        if len(self.executed_trades) < 2:
+            return 0
+            
+        sizes = [t.executed_size for t in self.executed_trades]
+        impacts = [t.market_impact for t in self.executed_trades]
+        
+        return np.corrcoef(sizes, impacts)[0, 1] if len(sizes) > 1 else 0
+        
+    def run_monte_carlo_simulation(self, num_simulations: int = 1000) -> Dict:
+        """Monte Carlo simulation"""
+        if not self.executed_trades:
+            return {'message': 'Hech qanday trade mavjud emas'}
+            
+        original_pnls = [trade.pnl for trade in self.executed_trades]
+        
+        simulation_results = []
+        
+        for _ in range(num_simulations):
+            # Random sampling with replacement
+            simulated_pnls = np.random.choice(original_pnls, size=len(original_pnls), replace=True)
+            
+            # Calculate metrics for this simulation
+            total_return = sum(simulated_pnls) / self.initial_capital
+            
+            # Calculate drawdown
+            cumulative = np.cumsum(simulated_pnls)
+            peak = np.maximum.accumulate(cumulative)
+            drawdown = (cumulative - peak) / self.initial_capital
+            max_drawdown = abs(np.min(drawdown))
+            
+            simulation_results.append({
+                'total_return': total_return,
+                'max_drawdown': max_drawdown,
+                'final_equity': self.initial_capital + sum(simulated_pnls)
+            })
+            
+        # Analyze simulation results
+        returns = [r['total_return'] for r in simulation_results]
+        drawdowns = [r['max_drawdown'] for r in simulation_results]
+        
+        return {
+            'simulations': num_simulations,
+            'return_statistics': {
+                'mean': np.mean(returns),
+                'std': np.std(returns),
+                'min': np.min(returns),
+                'max': np.max(returns),
+                'percentiles': {
+                    'p5': np.percentile(returns, 5),
+                    'p25': np.percentile(returns, 25),
+                    'p50': np.percentile(returns, 50),
+                    'p75': np.percentile(returns, 75),
+                    'p95': np.percentile(returns, 95)
+                }
+            },
+            'drawdown_statistics': {
+                'mean': np.mean(drawdowns),
+                'std': np.std(drawdowns),
+                'max': np.max(drawdowns),
+                'percentiles': {
+                    'p95': np.percentile(drawdowns, 95),
+                    'p99': np.percentile(drawdowns, 99)
+                }
+            },
+            'risk_metrics': {
+                'prob_positive_return': sum(1 for r in returns if r > 0) / len(returns),
+                'prob_large_drawdown': sum(1 for d in drawdowns if d > 0.1) / len(drawdowns),
+                'expected_shortfall': np.mean([r for r in returns if r < np.percentile(returns, 5)])
+            }
+        }
+        
+    def export_results(self, filepath: str):
+        """Natijalarni faylga eksport qilish"""
+        results = {
+            'backtest_summary': self._calculate_results().__dict__,
+            'detailed_analysis': self.get_detailed_analysis(),
+            'executed_trades': [
+                {
+                    'timestamp': trade.execution_time.isoformat(),
+                    'symbol': trade.original_trade.symbol,
+                    'side': trade.original_trade.side.value,
+                    'size': trade.executed_size,
+                    'price': trade.executed_price,
+                    'pnl': trade.pnl,
+                    'fees': trade.fees,
+                    'slippage': trade.slippage,
+                    'market_impact': trade.market_impact,
+                    'latency_ms': trade.latency_ms
+                }
+                for trade in self.executed_trades
+            ],
+            'equity_curve': [
+                {
+                    'timestamp': point['timestamp'].isoformat(),
+                    'equity': point['equity'],
+                    'pnl': point['pnl']
+                }
+                for point in self.equity_curve
+            ],
+            'configuration': {
+                'initial_capital': self.initial_capital,
+                'commission_rate': self.commission_rate,
+                'slippage_model': {
+                    'base_slippage': self.slippage_model.base_slippage,
+                    'volatility_multiplier': self.slippage_model.volatility_multiplier
+                }
+            }
+        }
+        
+        with open(filepath, 'w') as f:
+            json.dump(results, f, indent=2, default=str)
+            
+        self.logger.info(f"Backtest results exported to {filepath}")
+
+
+# Factory function
+def create_backtester(config: Dict) -> AdvancedBacktester:
+    """Backtester yaratish"""
+    slippage_model = SlippageModel(
+        base_slippage=config.get('base_slippage', 0.0005),
+        volatility_multiplier=config.get('volatility_multiplier', 2.0)
+    )
+    
+    market_impact_model = MarketImpactModel(
+        impact_coefficient=config.get('impact_coefficient', 0.1)
+    )
+    
+    latency_simulator = LatencySimulator(
+        base_latency=config.get('base_latency', 50),
+        max_latency=config.get('max_latency', 500)
+    )
+    
+    return AdvancedBacktester(
+        initial_capital=config.get('initial_capital', 100000),
+        commission_rate=config.get('commission_rate', 0.001),
+        slippage_model=slippage_model,
+        market_impact_model=market_impact_model,
+        latency_simulator=latency_simulator
+    )
